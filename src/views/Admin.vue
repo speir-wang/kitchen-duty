@@ -1,20 +1,17 @@
 <template>
-    <div id="admin">
-        <h1>This is admin page</h1>
+    <div id="admin" class="">
+        <h1 class="display-2 font-weight-black my-5">Scheduler</h1>
 
-        <AddPersonToList></AddPersonToList>
         <PersonList></PersonList>
     </div>
 </template>
 
 
 <script>
-import AddPersonToList from "@/components/admin/AddPersonToList";
 import PersonList from "@/components/admin/PersonList";
 
 export default {
 	components: {
-		AddPersonToList,
 		PersonList
 	},
 	mounted() {

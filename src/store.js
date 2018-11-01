@@ -39,15 +39,20 @@ export default new Vuex.Store({
 	actions: {
 		// addPersonToList
 		addPersonToList: ({ commit }, newPerson) => {
-			db.collection("users")
-				.add(newPerson)
-				.then(function(docRef) {
-					commit("addPersonToList", newPerson);
-					console.log("Document written with ID: ", docRef.id);
-				})
-				.catch(function(error) {
-					console.error("Error adding document: ", error);
-				});
+			return new Promise((resolve, reject) => {
+				db.collection("users")
+					.doc(newPerson.email)
+					.set(newPerson)
+					.then(function(docRef) {
+						commit("addPersonToList", newPerson);
+						resolve("Data is added");
+						console.log("Document written with ID: ", docRef.id);
+					})
+					.catch(function(error) {
+						reject("Failed");
+						console.error("Error adding document: ", error);
+					});
+			});
 		},
 		fetchAllPeople: ({ commit }) => {
 			db.collection("users")
@@ -58,14 +63,13 @@ export default new Vuex.Store({
 					});
 				});
 		},
-		deleteUserByEmail: ({ commit, dispatch }, email) => {
+		deleteUsersByEmail: ({ commit, dispatch }, emails) => {
 			db.collection("users")
-				.where("email", "==", email)
 				.get()
 				.then(function(querySnapshot) {
 					querySnapshot.forEach(function(doc) {
-						console.log(doc.id, " => ", doc.data());
-						doc.ref.delete();
+						console.log(emails.includes(doc.data().email));
+						if (emails.includes(doc.data().email)) doc.ref.delete();
 					});
 				});
 		}
