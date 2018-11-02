@@ -2,7 +2,7 @@
     <div>
         <v-date-picker v-model="picker" :allowed-dates="allowedDates" locale="en-GB" full-width :min="current" :landscape="landscape" :reactive="reactive" @click.native="onClick">
         </v-date-picker>
-        {{this.picker}}
+        {{this.formatDate(this.picker)}}
 
     </div>
 </template>
@@ -23,10 +23,15 @@ export default {
 		onClick(e) {
 			// e.preventDefault();
 			// e.stopPropagation();
-			console.log(this.picker);
+			// console.log(this.picker);
+			this.formatDate(this.picker);
 		},
 		allowedDates: val => {
 			return new Date(val).getDay() !== 0 && new Date(val).getDay() !== 6;
+		},
+		formatDate: date => {
+			console.log(new Date(date).toLocaleDateString("en-GB"));
+			return new Date(date).toLocaleDateString("en-GB");
 		}
 	}
 };
