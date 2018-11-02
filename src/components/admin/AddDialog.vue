@@ -1,9 +1,8 @@
 <template>
     <v-dialog v-model="dialog" max-width="500px" lazy persistent>
-        <v-btn slot="activator" color="primary" dark class="mb-2">Add New Staff</v-btn>
         <v-card>
             <v-card-title>
-                <span class="headline px-2 pt-4">Add New Staff</span>
+                <span class="headline pt-4">Add New Staff</span>
             </v-card-title>
 
             <v-card-text class="pa-0">
@@ -25,7 +24,7 @@
                 </v-form>
             </v-card-text>
 
-            <v-card-actions class="pb-4">
+            <v-card-actions class="pb-4 px-3">
                 <v-spacer></v-spacer>
                 <v-btn color="blue darken-1" flat @click.native="close">Cancel</v-btn>
                 <v-btn color="primary" @click.native="save" :loading="loading" :disabled="loading">Save</v-btn>
@@ -33,7 +32,7 @@
 
             <v-card-text v-if="success">
                 <v-alert outline class="pa-3" :value="success" type="success" transition="fade-transition">
-                    {{firstName}} {{lastName}} is now joining the list
+                    {{firstName}} {{lastName}} is now added to the list
                 </v-alert>
             </v-card-text>
         </v-card>
@@ -44,6 +43,12 @@
 import { mapGetters, mapActions } from "vuex";
 
 export default {
+	props: ["addDialogState"],
+	watch: {
+		addDialogState(newDialogState) {
+			this.dialog = newDialogState;
+		}
+	},
 	data() {
 		return {
 			rules: {
@@ -58,6 +63,7 @@ export default {
 					return true;
 				}
 			},
+
 			dialog: false,
 			loading: false,
 			valid: false,
@@ -84,28 +90,26 @@ export default {
 			this.loading = false;
 			this.success = false;
 			this.$refs.addNewStaffForm.reset();
+			this.$emit("closeAddDialog");
 		},
 		save() {
 			this.$refs.addNewStaffForm.validate();
 
-			const newStaff = {
-				firstName: this.firstName,
-				lastName: this.lastName,
-				email: this.email
-			};
-
 			if (this.valid) {
 				this.loading = true;
-				this.$store.dispatch("addPersonToList", newStaff).then((resolve, reject) => {
-					if (resolve) {
-						this.success = true;
-						this.loading = false;
-					}
-				});
+				this.$store
+					.dispatch("addPersonToList", {
+						firstName: this.firstName,
+						lastName: this.lastName,
+						email: this.email
+					})
+					.then((resolve, reject) => {
+						if (resolve) {
+							this.success = true;
+							this.loading = false;
+						}
+					});
 			}
-		},
-		deleteStaff(staff) {
-			console.log(staff);
 		}
 	}
 };

@@ -31,7 +31,13 @@ export default new Vuex.Store({
 			let newTownSquarePeople = state.townSquarePeople.concat(newPerson);
 			state.townSquarePeople = [...newTownSquarePeople];
 		},
-
+		updateStaff(state, updatedStaff) {
+			let updatedtownSquarePeople = [...state.townSquarePeople.filter(staff => staff.email !== updatedStaff.email), updatedStaff];
+			state.townSquarePeople = [...updatedtownSquarePeople];
+		},
+		deleteStaff(state, deletedStaff) {
+			state.townSquarePeople = [...state.townSquarePeople.filter(staff => staff.email !== deletedStaff.email)];
+		},
 		personOnDuty(state, personOnDuty) {
 			state.personOnDuty = { ...personOnDuty };
 		}
@@ -54,6 +60,25 @@ export default new Vuex.Store({
 					});
 			});
 		},
+		updateStaff: ({ commit }, updatedStaff) => {
+			return new Promise((resolve, reject) => {
+				db.collection("users")
+					.doc(updatedStaff.email)
+					.set({
+						firstName: updatedStaff.firstName,
+						lastName: updatedStaff.lastName,
+						email: updatedStaff.email
+					})
+					.then(function(docRef) {
+						commit("updateStaff", updatedStaff);
+						resolve(`user ${updatedStaff.email} is updated`);
+					})
+					.catch(function(error) {
+						reject("Failed");
+						console.error("Error adding document: ", error);
+					});
+			});
+		},
 		fetchAllPeople: ({ commit }) => {
 			db.collection("users")
 				.get()
@@ -63,15 +88,21 @@ export default new Vuex.Store({
 					});
 				});
 		},
-		deleteUsersByEmail: ({ commit, dispatch }, emails) => {
-			db.collection("users")
-				.get()
-				.then(function(querySnapshot) {
-					querySnapshot.forEach(function(doc) {
-						console.log(emails.includes(doc.data().email));
-						if (emails.includes(doc.data().email)) doc.ref.delete();
+		deleteStaff: ({ commit, dispatch }, deletedStaff) => {
+			return new Promise((resolve, reject) => {
+				console.log(deletedStaff);
+				db.collection("users")
+					.doc(deletedStaff.email)
+					.delete()
+					.then(function() {
+						resolve("deleted");
+						commit("deleteStaff", deletedStaff);
+						console.log("Document successfully deleted!");
+					})
+					.catch(function(error) {
+						console.error("Error removing document: ", error);
 					});
-				});
+			});
 		}
 	},
 	getters: {
